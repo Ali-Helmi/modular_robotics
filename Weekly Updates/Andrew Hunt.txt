@@ -1,0 +1,1 @@
+I created a python program that will serve as the overall controller for the robot, which splits off two more processes to deal with object detection and navigation. I also programmed my firmware into the latest motor driver design and confirmed that it is able to control the motor's speed and direction correctly.

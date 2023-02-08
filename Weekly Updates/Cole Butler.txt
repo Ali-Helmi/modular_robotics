@@ -1,0 +1,9 @@
+Week Jan 30:
+	- completed design for gripper arm pcb and got started on ordering (contacted business office on Wednesday, 2/1)
+	- had new housing connecting faces printed
+
+Week Feb 6:
+	- didn't hear back from ECEN business office until Monday (2/6) and they needed some additional info to place the order for the pcbs
+	- Tuesday (2/7), business office told me that their email system messed up so I had to resend stuff for order to be placed. Should be good now.
+	- tested printed housing connecting faces, and they connect easily and stay together.
+		- it could be a little better as the connecting parts dont seeme very durable and get worn down quickly, but it should be an easy fix.

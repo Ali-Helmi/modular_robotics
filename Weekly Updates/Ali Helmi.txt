@@ -1,0 +1,5 @@
+1 - I managed to execute the object detection program headlessly on a raspberry pi. We recently discovered the limitation of microcontroller's available pins for the gripper arm which might require changing the design from utilizing three servos to two. 
+
+2 - Discussed an agree on the integration format between object detection and microcontroller subsystems. Redesigned the arm entirely and submitted for printing.
+
+3 - Testing and troublshooting the integration of softwares. Adjusting and further tweaking the arm design one more time focusing on the base and the claw gripper.

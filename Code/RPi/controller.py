@@ -35,13 +35,13 @@ def update_state():
 
 
 def fake_cam_data(data_queue):
-    object_list = ['ball', 'tape', 'wall']
+    object_list = ['ball', 'tape']
     # Send random data to the robot module for testing
     while True:
         sleep(random.random() * 2)
         data = []
         for x in range(4):
-            data.append([object_list[random.randint(0,2)], random.randint(1,15)])
+            data.append([object_list[random.randint(0,1)], random.randint(1,15)])
         data_queue.put(['cam', data])
 
 def camera(data_queue):
@@ -84,38 +84,40 @@ def robot_controller(data_queue, comms_queue):
             
             state = ''
             
+            # Check the command and call the correct function
             if direction == 'forward' or direction == 'f':
-                command_return = rb.move_robot(rb.MOTOR_FORWARD, int(command[1]))
+                command_return = rb.move_robot(rb.FORWARD, int(command[1]))
             elif direction == 'back' or direction == 'b':
-                command_return = rb.move_robot(rb.MOTOR_REVERSE, int(command[1]))
+                command_return = rb.move_robot(rb.REVERSE, int(command[1]))
             elif direction == 'right' or direction == 'r':
-                command_return = rb.rotate_robot(rb.MOTOR_FORWARD, int(command[1]))
+                command_return = rb.rotate_robot(rb.CLOCKWISE, int(command[1]))
             elif direction == 'left' or direction == 'l':
-                command_return = rb.rotate_robot(rb.MOTOR_REVERSE, int(command[1]))
+                command_return = rb.rotate_robot(rb.COUNTERCLOCKWISE, int(command[1]))
             elif direction == 'stop' or direction == 's':
                 command_return = rb.stop_robot()
             else:
-                state = 'error'
-                
+                state = 'ERROR: BAD COMMAND | '
+                command_return = [1]
             
-                
+            # Check the current robot state and add it to the status
             if rb.state == rb.STOPPED:
-                state = 'Stopped'
+                state += 'Stopped'
             elif rb.state == rb.MOVING:
                 if rb.direction == rb.FORWARD:
-                    state = 'Moving forward at {}%'.format(rb.speed)
+                    state += 'Moving forward at {}%'.format(rb.speed)
                 elif rb.direction == rb.REVERSE:
-                    state = 'Moving backward at {}%'.format(rb.speed)
+                    state += 'Moving backward at {}%'.format(rb.speed)
                 else:
-                    state = 'ERROR DIRECTION: {}'.format(rb.direction)
+                    state += 'ERROR DIRECTION: {}'.format(rb.direction)
             elif rb.state == rb.ROTATING:
                 if rb.direction == rb.CLOCKWISE:
-                    state = 'Rotating clockwise at {}%'.format(rb.speed)
+                    state += 'Rotating clockwise at {}%'.format(rb.speed)
                 if rb.direction == rb.COUNTERCLOCKWISE:
-                    state = 'Rotating counterclockwise at {}%'.format(rb.speed)
+                    state += 'Rotating counterclockwise at {}%'.format(rb.speed)
             else:
                 state = 'ERROR'
-                    
+            
+            # Check for errors in command responses
             if command_return[0] != 1:
                 if command_return[0] == rb.BAD_DIRECTION:
                     state += ' | Bad direction'

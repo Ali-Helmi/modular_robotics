@@ -13,6 +13,7 @@ void setup_timer(void);
 void setup_pwm(uint8_t channel);
 void disable_pwm(uint8_t channel);
 void set_pwm_duty_cycle(uint8_t channel, uint32_t percent);
+void set_pwm_raw_duty_cycle(uint8_t channel, uint16_t duty_cycle);
 void pwm_on(uint8_t channel, uint8_t duty_cycle);
 void pwm_off(uint8_t channel);
 

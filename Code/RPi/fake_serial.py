@@ -25,9 +25,8 @@ class Serial:
         else:
             self.glitch_enabled = True
         
-        #print(frame)
         new_frame = [161, frame[0] & 127, frame[3], frame[1], frame[2], frame[-1]]
-        #print(new_frame)
+        
         for thing in new_frame:
             self.in_waiting += 1
             self.data.put(thing)

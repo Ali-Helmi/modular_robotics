@@ -110,41 +110,6 @@ class robot_comms:
             
             return [self.BAD_FRAME]
         
-        
-        '''
-        data = []
-        start_time = time.time_ns()
-        
-        address_good = False
-        
-        #data = self.ser.read(size=frame_type)
-        
-        while 1:
-            if (time.time_ns() - start_time) > timeout:
-                #print('Timed out. Address byte receieved: ', address_good, ' | Num data bytes received: ', len(data))
-                break
-
-            
-            
-            if self.ser.in_waiting > 0:
-                new_byte = int.from_bytes(self.ser.read(), 'big')
-                if address_good:
-                    if new_byte == 126:
-                        total_time = time.time_ns() - start_time
-                        break # End of frame
-                    else:
-                        data.append(new_byte) # Add data to array
-                else:
-                    if (new_byte >> 7) == 1:                    # Check if an address byte
-                        if (new_byte & 127) == self.address:    # Check for the correct address
-                            address_good = True                 # Address belongs to RPi
-                
-        if data:
-            #print('Total time: ', total_time)
-            return data
-        else:
-            return [-1]
-        '''
 
     def flush_input(self):
         self.ser.reset_input_buffer()

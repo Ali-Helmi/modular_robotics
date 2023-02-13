@@ -54,14 +54,16 @@ class robot:
         
 
     def send_motor_commands(self, send_data):
+        # Clear any data in the serial input
         self.comms.flush_input()
         
+        # Send frames to each motor
         self.comms.send_frame(motor_front_left, [send_data['leftdir'], send_data['speed'], send_data['leftcheck']])
-        sleep(0.002)
+        sleep(0.001)
         self.comms.send_frame(motor_front_right, [send_data['rightdir'], send_data['speed'], send_data['rightcheck']])
-        sleep(0.002)
+        sleep(0.001)
         self.comms.send_frame(motor_rear_left, [send_data['leftdir'], send_data['speed'], send_data['leftcheck']])
-        sleep(0.002)
+        sleep(0.001)
         self.comms.send_frame(motor_rear_right, [send_data['rightdir'], send_data['speed'], send_data['rightcheck']])
         
         # Grab responses
@@ -80,8 +82,8 @@ class robot:
                 
         for frame in received_data:
             
-            # If the sent and received ata matches up, set a motor's response
-            # to 1
+            # If the sent and received ata matches up, 
+            # set a motor's response to 1
             if frame[0] > 0:
                 frame_dict = self.motor_frame_to_dict(frame)
             
@@ -107,6 +109,9 @@ class robot:
         return 1
 
     def stop_robot(self):
+        '''
+            Sends the coast command to every motor to stop the robot 
+        '''
         direction = self.MOTOR_COAST
         speed = 1
         check = direction ^ speed
@@ -150,23 +155,14 @@ class robot:
 
         
 
-    def move_robot(self, direction, speed):
+    def move_robot(self, direction, speed):      
         '''
-            Returns 1 if all the motors in the correct mode
-            -1 if direction value is bad
-            -2 if speed value is bad
-            -3 if not all the motors responded
-
-            Check the direction and speed that is requested
-            if those values are good, send them to the motors
-            Check the returned values from the motors to see if they are in the correct mode
-            If any are wrong, tell all motors to stop
+            Sends commands to each motor the move the robot forward or backward
         '''
-        
-        if direction == self.MOTOR_FORWARD:
+        if direction == self.FORWARD:
             left_direction = self.MOTOR_FORWARD
             right_direction = self.MOTOR_REVERSE
-        elif direction == self.MOTOR_REVERSE:
+        elif direction == self.REVERSE:
             left_direction = self.MOTOR_REVERSE
             right_direction = self.MOTOR_FORWARD
         else:
@@ -202,9 +198,9 @@ class robot:
         else:
             self.state = self.MOVING
             self.speed = speed
-            if direction == self.MOTOR_FORWARD:
+            if direction == self.FORWARD:
                 self.direction = self.FORWARD
-            elif direction == self.MOTOR_REVERSE:
+            elif direction == self.REVERSE:
                 self.direction = self.REVERSE
             return [1]
         
@@ -213,13 +209,12 @@ class robot:
 
     def rotate_robot(self, direction, speed):
         '''
-            Similar to the move robot function, but in this case spins the motors so that
-            the robot will spin instead of move
+            Sends commands to each motor to rotate the robot left or right
         '''
         
-        if direction == self.MOTOR_FORWARD:
+        if direction == self.CLOCKWISE:
             rotate_direction = self.MOTOR_FORWARD
-        elif direction == self.MOTOR_REVERSE:
+        elif direction == self.COUNTERCLOCKWISE:
             rotate_direction = self.MOTOR_REVERSE
         else:
             return self.BAD_DIRECTION
@@ -227,7 +222,7 @@ class robot:
         if speed > 100 or speed < 0:
             return self.BAD_SPEED
         
-        check = direction ^ speed
+        check = rotate_direction ^ speed
         
         sent_data = {
            'leftdir'    : rotate_direction,
@@ -253,9 +248,9 @@ class robot:
         else:
             self.state = self.ROTATING
             self.speed = speed
-            if direction == self.MOTOR_FORWARD:
+            if direction == self.CLOCKWISE:
                 self.direction = self.CLOCKWISE
-            elif direction == self.MOTOR_REVERSE:
+            elif direction == self.COUNTERCLOCKWISE:
                 self.direction = self.COUNTERCLOCKWISE
             return [1]
         

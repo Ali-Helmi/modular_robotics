@@ -38,10 +38,8 @@ void motor_setup(void)
     setup_pwm(2);
     motor_coast();
 
-    update = 0;
-    new_state = 150;
-    new_speed = 150;
-    check = 0;
+    motor_comm_state = IDLE_STATE;
+    reset_status();
 }
 
 void motor_forward(uint8_t speed)
@@ -92,7 +90,8 @@ void motor_coast(void)
     pwm_off(2);
     //motor_ground_cutoff();
     current_state = COAST;
-    current_speed = 0;
+    current_speed = 1;
+    // Setting speed to 1, because the UART doesn't seem to like 0s
 }
 
 void motor_brake(void)
@@ -110,123 +109,152 @@ void motor_ground_cutoff(void)
     RC3 = 0;
 }
 
+    /*
+    * 4 fields for return_data:
+    * 1. this address
+    * 2. check value
+    * 3. current direction
+    * 4. current speed
+    */
+void send_error(uint8_t error_no)
+{
+    // Need to set up error types
+    uint8_t return_data[4];
+    return_data[0] = uart_get_address();
+    return_data[1] = error_no;
+
+    uart_send_frame(PI_ADDRESS, return_data, 2);
+    reset_status();
+}
+
+void send_status(void)
+{
+    uint8_t return_data[4];
+
+    return_data[0] = uart_get_address();
+    return_data[1] = check;
+    return_data[2] = current_state;
+    return_data[3] = current_speed;
+
+    uart_send_frame(PI_ADDRESS, return_data, 4);
+    reset_status();
+}
+
+void reset_status(void)
+{
+    new_state = 150;
+    new_speed = 150;
+    check = 0;
+    uart_reset();
+}
+
+uint8_t valid_data(void)
+{
+    return (((new_speed < 100) && (new_speed > 0)) & (check == (new_state ^ new_speed)));
+}
+
 void motor_receive_uart(void)
 {
-    message = uart_receive();
+    uint8_t motor_message = uart_receive();
 
-    if (message == ADDRESS_GOOD)
+    switch (motor_comm_state)
     {
-        if (update == 1) // never received end of frame
-        {
-            new_state = 150;
-            new_speed = 150;
-            check = 0;
-        }
-        else 
-        {
-            update = 1;      // Address good, updating state
-        }
-        
-    }
-    else if (message == ADDRESS_BAD)
-    {
-        // Do nothing
-    }
-    else if (message == ERROR)
-    {
-        // An error has occurred, ask for a new message
-        uint8_t data[1];
-        data[0] = ERROR;
-
-        uart_send_frame(PI_ADDRESS, data, 1);
-        update = 0;     // Message over
-        new_state = 150;  // Reset new state variable
-        new_speed = 150;
-        check = 0;
-    }
-    else if (message == END_OF_FRAME)
-    {
-        if (update == 1) // Update never finished
-        {
-            uint8_t data[1];
-            data[0] = 0xEA;
-            uart_send_frame(PI_ADDRESS, data, 1);
-        }
-        new_state = 150;  // Reset new state variable
-        new_speed = 150;
-        check = 0;
-    }
-    else if (update == 1)
-    {
-        if (new_state == 150)
-        {
-            // First byte is the new state
-            new_state = message;
-            // check message value and set the state
-
-            // TESTING
-            //uart_send(message);
-        }
-        else if (new_speed == 150)
-        {
-            // state already set, set speed
-            new_speed = message;
-            check = new_state ^ new_speed;
-
-            // TESTING
-            //uart_send(message ^ new_state);
-        }
-        else
-        {
-            if (check == message)
+        case IDLE_STATE:
+            switch (motor_message)
             {
-                // Set the new state and speed
+                case UART_ADDRESS_GOOD:
+                    motor_comm_state = RECEIVE_DATA_STATE;  // Good address, receive data
+                    break;
 
-                // If the new state or speed do not make sense,
-                // send an error back
+                case UART_ADDRESS_BAD:                      // Not for this MCU
+                    break;
+                
+                default:
+                    break;
+            }
+            break;
+        case RECEIVE_DATA_STATE:
+            switch (motor_message)
+            {
+                case UART_ADDRESS_GOOD:
+                case UART_ADDRESS_BAD:
+                case UART_END_OF_FRAME:
+                case UART_IGNORE:
+                case UART_ERROR:
+                    // None of these messages should be received here
+                    motor_comm_state = IDLE_STATE;          // Reset to idle
+                    reset_status();                         // Reset all variables
+                    send_error(MISSING_DATA);               // Request new data
+                    break;
+                
+                default:
+                    if (new_state == 150)
+                    {
+                        new_state = motor_message;
+                    }
+                    else if (new_speed == 150)
+                    {
+                        new_speed = motor_message;
+                    }
+                    else
+                    {
+                        check = motor_message;
+                        motor_comm_state = EOF_STATE;
+                    }
+                    break;
+            }
+            break;
 
-                // Set the check byte back to the RPi so it knows
-                // the message was received properly
-
-                uint8_t return_data[3];
-
-                if (new_state == MOTOR_STATUS)
+        case EOF_STATE:
+                if (motor_message == UART_END_OF_FRAME)
                 {
-                    
-                    return_data[0] = check;
-                    return_data[1] = current_state;
-                    return_data[2] = current_speed;
+                    motor_comm_state = IDLE_STATE;          // No matter what, go back to idle
+                    switch (new_state)
+                    {
+                        case FORWARD:
+                            if (valid_data())
+                            {
+                                motor_forward(new_speed);
+                                send_status();
+                            }
+                            break;
+                        
+                        case REVERSE:
+                            if (valid_data())
+                            {
+                                motor_reverse(new_speed);
+                                send_status();
+                            }
+                            break;
 
-                    uart_send_frame(PI_ADDRESS, return_data, 3);
+                        case COAST:
+                            if (valid_data())
+                            {
+                                motor_coast();
+                                send_status();
+                            }
+                            break;
+                        
+                        case MOTOR_STATUS:
+                            send_status();
+                            break;
+                    
+                        default:
+                            reset_status();
+                            send_error(BAD_DATA);
+                            break;
+                    }
                 }
                 else
                 {
-                    if ((new_state == FORWARD) && (new_speed < 100))
-                    {
-                        motor_forward(new_speed);
-                    } else if ((new_state == REVERSE) && (new_speed < 100))
-                    {
-                        motor_reverse(new_speed);
-                    } else if (new_state == COAST)
-                    {
-                        motor_coast();
-                    }
-
-                    return_data[0] = check;
-
-                    uart_send_frame(PI_ADDRESS, return_data, 1);
+                    motor_comm_state = IDLE_STATE;
+                    reset_status();
+                    send_error(MISSING_EOF);
                 }
-
-                update = 0;
-            }
-            else
-            {
-                uint8_t return_data[1];
-                return_data[0] = 0xEA;
-
-                uart_send_frame(PI_ADDRESS, return_data, 1);
-            }
-        }
+                break;
+        
+        default:
+            uart_reset();
+            break;
     }
-    
 }

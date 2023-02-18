@@ -82,7 +82,7 @@ class robot:
                 
         for frame in received_data:
             
-            # If the sent and received ata matches up, 
+            # If the sent and received data matches up, 
             # set a motor's response to 1
             if frame[0] > 0:
                 frame_dict = self.motor_frame_to_dict(frame)

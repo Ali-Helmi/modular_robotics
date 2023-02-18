@@ -1,17 +1,19 @@
 def object_detections(queue) :    
     import sys
     #this is where my packages are so do not forget to change to yours
-    sys.path.append('C:\Python310\Lib\site-packages')
+    #sys.path.append('C:\Python310\Lib\site-packages')
     import cv2
     import numpy as np
+    
+    from time import sleep
 
     #you can change these files to tiny if you need to reduce the process load but will also lower the accuracy
     #add them in the directory of the program
-    net = cv2.dnn.readNet('yolov3.weights', 'yolov3.cfg')
+    net = cv2.dnn.readNet('ObjectDetection\yolov3.weights', 'ObjectDetection\yolov3.cfg')
 
     #pretrained objects names
     classes = []
-    with open("coco.names", "r") as names:
+    with open("ObjectDetection\coco.names", "r") as names:
         classes = names.read().splitlines()
 
     #opening the webcame and throw error if couldn't
@@ -20,12 +22,13 @@ def object_detections(queue) :
         raise IOError("Cannot open webcam")
     
     #keeping track of frames
-    frame_id = 0
+    #frame_id = 0
 
     while True:
         #extracting each frame and its shape
         ret, frame = capture.read()
         height, width, depth = frame.shape
+        
 
         blob = cv2.dnn.blobFromImage(frame, 1/255, (416, 416), (0,0,0), swapRB=True, crop=False)
         net.setInput(blob)
@@ -58,6 +61,9 @@ def object_detections(queue) :
                     class_ids.append(class_id)
         indexes = cv2.dnn.NMSBoxes(boxes, confidences, 0.2, 0.4)
         
+        # Create a list to add objects to
+        detected_objects = []
+        
         if len(indexes)>0:
             for i in indexes.flatten():
                 #organizing to be sent in queue
@@ -67,12 +73,37 @@ def object_detections(queue) :
                 confidence = str(round(confidences[i],2))
                 #ping pong seemed to be identified as sports ball and orange
                 if label == "sports ball":
-                    obj = ["Ping Pong Ball", location_x, location_y, x, y, w, h]
-                    queue.put(frame_id)
-                    queue.put(obj)
+                    #obj = ["ball", location_x, location_y, x, y, w, h]
+
+                    # Place object info in a dict
+                    obj = {
+                        'name'      : 'ball',
+                        'xcoord'    : location_x,
+                        'ycoord'    : location_y,
+                        'llx'       : x,
+                        'lly'       : y,
+                        'w'         : w,
+                        'h'         : h
+                    }
+                    detected_objects.append(obj)
+                    
                 if label == "orange":
-                    obj = ["Ping Pong Ball", location_x, location_y, x, y, w, h]
-                    queue.put(frame_id)
-                    queue.put(obj)
-        #incrementing frame id to prepare for next
-        frame_id = frame_id + 1
+                    #obj = ["ball", location_x, location_y, x, y, w, h]
+
+                    # Place object info in a dict
+                    obj = {
+                        'name'      : 'ball',
+                        'xcoord'    : location_x,
+                        'ycoord'    : location_y,
+                        'llx'       : x,
+                        'lly'       : y,
+                        'w'         : w,
+                        'h'         : h
+                    }
+
+                    # Add the obj dict to the list of detected objects
+                    detected_objects.append(obj)
+                    
+        # Place the object data in the queue to be accessed by the controller
+        queue.put(['cam', detected_objects])
+        

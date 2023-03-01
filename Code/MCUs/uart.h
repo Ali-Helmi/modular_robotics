@@ -25,6 +25,13 @@
 #define UART_FRAME_ERROR    204
 #define UART_IGNORE         204
 
+// Errors
+#define GENERAL_ERROR   0xEA    // 234
+#define MISSING_EOF     0xEB    // 235
+#define BAD_DATA        0xEC    // 236
+#define MISSING_DATA    0xED    // 237
+#define UART_ERROR      0xEE    // 238
+
 #define END_TOKEN       126
 
 uint8_t uart_state, mcu_address, addr_good = 0, eof_received = 1;

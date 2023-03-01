@@ -21,6 +21,10 @@ class robot:
         self.MOTOR_FORWARD = 1
         self.MOTOR_REVERSE = 2
         self.MOTOR_COAST = 3
+        
+        # Sensor commands
+        self.SENSOR_READ = 5
+        self.SENSOR_SEND = 7
 
         # States
         self.STOPPED = 1
@@ -76,12 +80,11 @@ class robot:
         return 1
   
     
-    def check_responses(self, sent_data, received_data):
+    def check_motor_responses(self, sent_data, received_data):
         
         response_recieved = [0, 0, 0, 0]
                 
         for frame in received_data:
-            
             # If the sent and received data matches up, 
             # set a motor's response to 1
             if frame[0] > 0:
@@ -126,7 +129,7 @@ class robot:
         
         responses = self.send_motor_commands(sent_data)
         
-        checked_responses = self.check_responses(sent_data, responses)
+        checked_responses = self.check_motor_responses(sent_data, responses)
         
         comm_error = False
         
@@ -184,7 +187,7 @@ class robot:
         
         responses = self.send_motor_commands(sent_data)
         
-        checked_responses = self.check_responses(sent_data, responses)
+        checked_responses = self.check_motor_responses(sent_data, responses)
         
         comm_error = False
         
@@ -234,7 +237,7 @@ class robot:
         
         responses = self.send_motor_commands(sent_data)
         
-        checked_responses = self.check_responses(sent_data, responses)
+        checked_responses = self.check_motor_responses(sent_data, responses)
         
         comm_error = False
         
@@ -268,9 +271,60 @@ class robot:
             a list of the distances
         '''
         
-        self.comms.send_frame(sensor_left, [1])
-        distance1 = self.comms.receive_frame()[0]
-        self.comms.send_frame(sensor_right, [1])
-        distance2 = self.comms.receive_frame()[0]
+        # Send a read frame to one sensor, then the other
+        # Get a reading frame back
+        # then send a send frame to both sesnsors
+        # Get a sending frame back
+        
+        # or maybe just have the MCU wait for a sensor reading and then send the frame itself
+        
+        # Clear out the UART buffer
+        self.comms.flush_input()
+        
+        distance1 = -1
+        distance2 = -1
+        
+        sensor1_reading = False
+        sensor2_reading = False
+        
+        try_count = 0
+        
+        # Might need exception handling here in case of comm errors
+        
+        while sensor1_reading == 0 or sensor2_reading == 0:
+            if not sensor1_reading:
+                self.comms.send_frame(sensor_left, [self.SENSOR_READ, self.SENSOR_READ])
+                resp1 = self.comms.receive_frame()
+                if resp1[0] == sensor_left:
+                    if resp1[1] == self.SENSOR_READ:
+                        if resp1[2] == 1:
+                            sensor1_reading = True
+            
+            if not sensor2_reading:
+                self.comms.send_frame(sensor_right, [self.SENSOR_READ, self.SENSOR_READ])
+                resp2 = self.comms.receive_fvrame()
+                if resp2[0] == sensor_left:
+                    if resp2[1] == self.SENSOR_READ:
+                        if resp2[2] == 1:
+                            sensor2_reading = True
+            
+            try_count += 1
+            
+            if try_count > 4:
+                # unable to get response from sensors
+                return [distance1, distance2]
+                
+        
+        self.comms.send_frame(sensor_left, [self.SENSOR_SEND, self.SENSOR_SEND])
+        resp1 = self.comms.receive_frame()[0]
+        if resp1[0] == sensor_left:
+            if resp1[1] == self.SENSOR_SEND:
+                distance1 = resp1[2]
+        
+        self.comms.send_frame(sensor_right, [self.SENSOR_SEND, self.SENSOR_SEND])
+        resp2 = self.comms.receive_frame()[0]
+        if resp2[0] == sensor_left:
+            if resp2[1] == self.SENSOR_SEND:
+                distance2 = resp2[2]
 
         return [distance1, distance2]

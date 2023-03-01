@@ -3,3 +3,7 @@
 2. I continued working on the overall controller program, which mostly involved working on the terminal user interface. I built a test device for testing my motor control program while waiting for the physical modules to be finished, this will be used for testing with the object detection code. I also tweaked the UART communication code for the MCUs to give better information when errors occur.
 
 3. I fixed a bug where UART comms on the MCUs would lock up if frames were sent too quickly. I also worked on the controller and robot script. The controller script is now able to control the motor modules to cause the robot to move and rotate. I've also started integrating the computer vison script, and am able to use that to simulate looking for a ball.
+
+4. I updated the UART code of other modules to what I had written for the motor modules. I also worked on a basic version of the arm firmware so it can hopefully be completed quickly once the arm design is finalized. I attempted to install openCV on my raspbery pi but couldn't get it to install, so was unable to test object detection on the pi yet.
+
+5. I borrowed Ali's raspberry pi, which is the one we will be using for the robot. I was successfully able to install openCV on that, and was able to test the object detection. It is currently too slow with the current model. I also tested multiple motor drivers with the raspberry pi in an attempt to simulate communications between modules.

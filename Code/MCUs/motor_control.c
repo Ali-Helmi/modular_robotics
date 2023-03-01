@@ -217,6 +217,10 @@ void motor_receive_uart(void)
                                 motor_forward(new_speed);
                                 send_status();
                             }
+                            else
+                            {
+                                send_error(BAD_DATA);
+                            }
                             break;
                         
                         case REVERSE:
@@ -225,6 +229,10 @@ void motor_receive_uart(void)
                                 motor_reverse(new_speed);
                                 send_status();
                             }
+                            else
+                            {
+                                send_error(BAD_DATA);
+                            }
                             break;
 
                         case COAST:
@@ -232,6 +240,10 @@ void motor_receive_uart(void)
                             {
                                 motor_coast();
                                 send_status();
+                            }
+                            else
+                            {
+                                send_error(BAD_DATA);
                             }
                             break;
                         

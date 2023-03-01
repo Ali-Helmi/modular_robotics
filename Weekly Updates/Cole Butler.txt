@@ -7,3 +7,13 @@ Week Feb 6:
 	- Tuesday (2/7), business office told me that their email system messed up so I had to resend stuff for order to be placed. Should be good now.
 	- tested printed housing connecting faces, and they connect easily and stay together.
 		- it could be a little better as the connecting parts dont seeme very durable and get worn down quickly, but it should be an easy fix.
+		
+Update since Week Feb 6:
+	- arm and sensor PCBs assembled
+	- new working housing connecting design added to all housings
+		- this was tedious and time consuming due to issues in the original way I made the housing in SOLIDWORKS. So I decieded to remake
+		  all the housing now that I'm comfortable with SOLIDWORKS so that any changes will be easier to make.
+	- connector PCBs ordered and expected March 2, plan to asseble them during the Blitz
+	- updated gripper/arm housing for new arm dimensions
+	- modified wheel module to have motor seated lower (this is to ensure good clearance below the robot when the wheels are on)
+	

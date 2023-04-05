@@ -17,3 +17,8 @@ Update since Week Feb 6:
 	- updated gripper/arm housing for new arm dimensions
 	- modified wheel module to have motor seated lower (this is to ensure good clearance below the robot when the wheels are on)
 	
+Update April 5:
+	- Found that connecting faces on housing will have to be printed separately
+	- Glued together already printed housing
+	- Further optimized housing to be printed without issues
+	- Got account number from business office for more printing funds, waiting on housing parts to print

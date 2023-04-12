@@ -37,13 +37,21 @@ def object_detection(queue) :
                 obj_name = labels[i].split(' ', 1)[0]
                 obj_confidence = float(labels[i].split(' ', 1)[-1])
 
-                x1 = detections.xyxy[i][0]
-                y1 = detections.xyxy[i][1]
-                x2 = detections.xyxy[i][2]
-                y2 = detections.xyxy[i][3]
+                x1 = float(detections.xyxy[i][0])
+                y1 = float(detections.xyxy[i][1])
+                x2 = float(detections.xyxy[i][2])
+                y2 = float(detections.xyxy[i][3])
 
-                center_x = abs(x1 - x2)
-                center_y = abs(y1 - y2)
+                base_x = min(x1, x2)
+                base_y = min(y1, y2)
+
+                w = abs(x1 - x2)
+                h = abs(y1 - y2)
+
+                center_x = w/2 + base_x
+                center_y = h/2 + base_y
+
+                area = w*h
 
                 obj = {
                     #IDs (Ball: 0, Bucket: 1, Negative: 2, Tape: 3)
@@ -51,6 +59,7 @@ def object_detection(queue) :
                     'conf'  : detections.confidence[i],
                     'x'     : center_x,
                     'y'     : center_y,
+                    'size'  : area
                 }
 
                 if (detections.confidence[i] > 0.6 and detections.class_id[i] != 2) :

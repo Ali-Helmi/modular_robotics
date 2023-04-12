@@ -1,5 +1,46 @@
-1 - I managed to execute the object detection program headlessly on a raspberry pi. We recently discovered the limitation of microcontroller's available pins for the gripper arm which might require changing the design from utilizing three servos to two. 
+Jan 25th, 2023: 
+	- I managed to execute the object detection program heedlessly on a raspberry pi. 
+	- We recently discovered the limitation of microcontroller's available pins for the gripper arm which might require changing the design from utilizing three servos to two.
 
-2 - Discussed an agree on the integration format between object detection and microcontroller subsystems. Redesigned the arm entirely and submitted for printing.
+Feb 1st, 2023: 
+	- Discussed and agreed on the integration format between object detection and microcontroller subsystems. 
+	- Redesigned the arm entirely and submitted it for printing.
 
-3 - Testing and troublshooting the integration of softwares. Adjusting and further tweaking the arm design one more time focusing on the base and the claw gripper.
+Feb 8th, 2023: 
+	- Testing and troubleshooting the integration of software, and discovered the model used to predict our object was not accurate enough to consistently and accurately predict our objects. 
+	- Adjusting and further tweaking the arm design one more time focusing on the base and the claw gripper.
+
+Feb 15th, 2023: 
+	- Chose a new algorithm and decided to train our own model using the same framework we have using (yolo v4). 
+	- Minimized the use of materials for the arm and the height of its base but engineered the design to still be sturdy enough to withstand all of our tasks.
+
+Feb 22nd, 2023: 
+	- Took and collected 300+ images per object of interest using the webcam used by the robot for the final prototype to keep things as consistent as possible. 
+	- Simulated the design to make sure the arm fulfilled our requirements by being able to extend below the base of the arm and over the robot.
+
+Mar 1st, 2023: 
+	- Manually Annotated 1500+ objects for training using the tool called Roboflow and started training. 
+	- Printed all the parts of the newly designed arm with the extended length and matching base.
+
+Mar 8th, 2023: 
+	- Deployed the newly trained model, tested, and validated using the API which yielded fortunate results. I was so happy with how it turned out with accuracy of 99%, and map 96%. 
+	- Found out that a crucial part of the arm is not provided by the design center (long enough screws) and took measurements for the new gripper design.
+
+Mar 22nd, 2023: 
+	- During integration testing, we were faced with another wall that was the licensing requirement to get the resultant weights files which meant our trained model won't be available offline. 
+	- Now that is not an issue since our Raspberry Pi will be connected to Wi-Fi, but I would like to be safe and decided to train my model myself. 
+	- Formulated a solution which came to be hollowed printed rods with metal inserts for screws on both ends.
+
+Mar 29th, 2023: 
+	- After I started to train my model, I encountered a bug that I spent an entire week trying to fix which turned out to be an unfixable one since it was a bug by the authors of the framework. 
+	- I submitted a bug report, but I did not want to bet on it being fixed since there is no guarantee and I did not want to risk it. 
+	- The solution was successful as intended which came to be a sturdy rod that can be screwed in both ends substituting a long threaded screw. I assembled the entire and my idea was a success.
+
+Apr 5th, 2023: 
+	- Decided to choose another framework and do everything all over again for the third time, but luckily, I could still use my annotated images from before, so I only needed to retrain my model from scratch. 
+	- Printed the gripper after the last adjustment regarding gears alignment. Tested arm movement with the controller program which resulted in proper movement only needing to be slowed down from the controller part.
+
+Apr 12th, 2023: 
+	- Tested and validated the last model which I trained using 100 epochs, and I also managed to finalize my program to output everything needed by the robot controller program. 
+	- The entire arm was completely assembled by this time and tested with the gripper included. 
+	- As it stands now both the gripper arm and the object detection program were validated successfully, passed all tests, and ready for final demonstration once the entire robot is built and assembled successfully.

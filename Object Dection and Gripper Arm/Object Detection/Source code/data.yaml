@@ -1,0 +1,15 @@
+names:
+- ball
+- bucket
+- negative
+- tape
+nc: 4
+roboflow:
+  license: CC BY 4.0
+  project: object-detection-computer-vision-2cuh3
+  url: https://universe.roboflow.com/texas-am-university-free/object-detection-computer-vision-2cuh3/dataset/1
+  version: 1
+  workspace: texas-am-university-free
+test: ../test/images
+train: Object-Detection-(Computer-Vision)-1/train/images
+val: Object-Detection-(Computer-Vision)-1/valid/images

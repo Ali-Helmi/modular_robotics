@@ -33,10 +33,12 @@ uint16_t microseconds, distance, wait_timeout;
 
 void sensor_setup(void);
 
-void send_error(uint8_t error_no);
-void send_status(void);
-void reset_status(void);
+void sensor_send_error(uint8_t error_no);
+void sensor_send_status(void);
+void sensor_reset_status(void);
 void sensor_receive_uart(void);
+
+void sensor_receive_uart_frame();
 
 void sensor_pulse(void);
 void sensor_read(void);

@@ -95,17 +95,17 @@ void sensor_read(void)
     }
 }
 
-void send_error(uint8_t error_no)
+void sensor_send_error(uint8_t error_no)
 {
     uint8_t return_data[4];
     return_data[0] = uart_get_address();
     return_data[1] = error_no;
 
     uart_send_frame(PI_ADDRESS, return_data, 2);
-    reset_status();
+    sensor_reset_status();
 }
 
-void send_status(void)
+void sensor_send_status(void)
 {
     uint8_t return_data[3];
 
@@ -118,7 +118,7 @@ void send_status(void)
     }
     else if (request_type == SENSOR_SEND)
     {
-        return_data[2] = distance;
+        return_data[2] = distance & 0xFF;
     }
     else 
     {
@@ -126,10 +126,10 @@ void send_status(void)
     }
 
     uart_send_frame(PI_ADDRESS, return_data, 3);
-    reset_status();
+    sensor_reset_status();
 }
 
-void reset_status(void)
+void sensor_reset_status(void)
 {
     //check = 0;
     distance = 0;
@@ -164,11 +164,11 @@ void sensor_receive_uart(void)
                 case UART_ADDRESS_BAD:
                 case UART_END_OF_FRAME:
                 case UART_IGNORE:
-                case UART_ERROR:
+                case COMM_ERROR:
                     // None of these messages should be received here
                     sensor_comm_state = IDLE_STATE;          // Reset to idle
-                    reset_status();                         // Reset all variables
-                    send_error(MISSING_DATA);               // Request new data
+                    sensor_reset_status();                         // Reset all variables
+                    sensor_send_error(MISSING_DATA);               // Request new data
                     break;
                 
                 default:
@@ -218,13 +218,13 @@ void sensor_receive_uart(void)
                         // Send the pulse to measure distance
                         sensor_pulse();
                     }
-                    send_status();
+                    sensor_send_status();
                 }
                 else
                 {
                     sensor_comm_state = IDLE_STATE;
-                    reset_status();
-                    send_error(MISSING_EOF);
+                    sensor_reset_status();
+                    sensor_send_error(MISSING_EOF);
                 }
                 break;
         
@@ -275,3 +275,64 @@ void sensor_receive_uart(void)
  */
 }
 
+void sensor_receive_uart_frame(void)
+{
+    if (frame_index == FRAME_SENSOR)
+    {
+        uint8_t sensor_message = frame[0];
+
+        switch (sensor_message)
+        {
+            case READ_SENSOR:
+                request_type = SENSOR_READ;
+                sensor_pulse();
+                break;
+            
+            case SEND_DATA:
+                request_type = SENSOR_SEND;
+
+                wait_timeout = 0;
+
+                while (state == READ_WAIT | state == READING)
+                {
+
+                    if (wait_timeout++ > 7000)
+                    {
+                        // Haven't received a return pulse
+                        // Object is more than 47 inches away
+                        break;
+                    }
+                    __delay_us(1);
+                }
+            
+            default:
+                sensor_reset_status();
+                sensor_send_error(BAD_DATA);
+        }
+
+        sensor_send_status();
+    }
+}
+
+/*
+while (state == READ_WAIT | state == READING)
+                    {
+                        // Possible endless loop here
+                        // Put a check at the beginning of next UART frame
+                        // to see if stuck here
+
+                        if (wait_timeout++ > 7000)
+                        {
+                            // Haven't received a return pulse
+                            // Object is more than 47 inches away
+                            break;
+                        }
+                        __delay_us(1);
+                    }
+                    if (request_type == SENSOR_SEND)
+                    {
+                        // Send the pulse to measure distance
+                        sensor_pulse();
+                    }
+                    sensor_send_status();
+*/

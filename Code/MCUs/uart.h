@@ -30,7 +30,18 @@
 #define MISSING_EOF     0xEB    // 235
 #define BAD_DATA        0xEC    // 236
 #define MISSING_DATA    0xED    // 237
-#define UART_ERROR      0xEE    // 238
+#define COMM_ERROR      0xEE    // 238
+
+// Module Frame Sizes
+#define FRAME_MOTOR 3
+#define FRAME_ARM 3
+#define FRAME_SENSOR 1
+
+// Module types
+#define MOTOR 1
+#define ARM_MAIN 2
+#define SENSOR 3
+#define ARM_GRIP 4
 
 #define END_TOKEN       126
 
@@ -46,6 +57,8 @@ void uart_send_byte(uint8_t data);
 void uart_send_frame(uint8_t address, const uint8_t * data, uint8_t length);
 uint8_t uart_get_address(void);
 void uart_reset(void);
+
+uint8_t uart_receive_frame(void);
 
 
 #endif	/* UART_H */

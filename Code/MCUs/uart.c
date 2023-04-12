@@ -54,7 +54,7 @@ uint8_t uart_receive(void)
     
     uart_message = RC1REG;
 
-    //frame[frame_index++] = uart_message;
+    frame[frame_index++] = uart_message;
 
     if ((FERR == 0) & (OERR == 0))  // No frame error or overrun
     {
@@ -100,7 +100,7 @@ uint8_t uart_receive(void)
         
             default:
                 uart_state = UART_IDLE;
-                return UART_ERROR;
+                return COMM_ERROR;
                 break;
         }        
     }
@@ -116,7 +116,7 @@ uint8_t uart_receive(void)
             CREN = 1;
         }
         */
-        return UART_ERROR;                       // Frame error or overrun, message not good
+        return COMM_ERROR;                       // Frame error or overrun, message not good
     }
 }
 
@@ -164,4 +164,62 @@ void uart_reset(void)
     CREN = 1;
     
     frame_index = 0;
+}
+
+uint8_t uart_receive_frame(void)
+{
+    uint8_t uart_message = RC1REG;
+    uint8_t recv_address;
+
+    if ((FERR == 0) & (OERR == 0))
+    {
+        switch (uart_state)
+        {
+            case UART_IDLE:
+                if (((uart_message & 128) >> 7) == 1)    // Check if this is an address byte
+                {
+                    recv_address = uart_message & 127;   // remove msb to get address
+                    if (mcu_address == recv_address)
+                    {
+                        uart_state = UART_MESSAGE;  // Move on to receive message state
+                        frame_index = 0;            // Set the frame index to the start of the array
+                    }
+                }
+                break;
+
+            case UART_MESSAGE:
+                if (uart_message == END_TOKEN)           
+                {
+                    // Check for an end token
+                    uart_state = UART_IDLE;             // Return to idle state
+                    return 1;                           // EOF received
+                    
+                }
+                else if (((uart_message & 128) >> 7) == 1)   
+                {
+                    // Check for an address byte
+                    uart_state = UART_IDLE;         // Go back to idle
+                    frame_index = 0;                // Reset frame index
+                    return MISSING_EOF;             // Never saw an EOF byte
+                }
+                else if (frame_index > 5)
+                {
+                    // Received too many message bytes, something is wrong
+                    uart_state = UART_IDLE;
+                    frame_index = 0;
+                    return MISSING_EOF;
+                }
+                else
+                {
+                    frame[frame_index++] = uart_message;
+                }
+                break;
+        
+            default:
+                uart_state = UART_IDLE;
+                return COMM_ERROR;
+                break;
+        }
+    }
+    return 0;       // Frame is either still building, or not for this module
 }

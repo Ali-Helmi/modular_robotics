@@ -6,4 +6,16 @@
 
 4. I updated the UART code of other modules to what I had written for the motor modules. I also worked on a basic version of the arm firmware so it can hopefully be completed quickly once the arm design is finalized. I attempted to install openCV on my raspbery pi but couldn't get it to install, so was unable to test object detection on the pi yet.
 
-5. I borrowed Ali's raspberry pi, which is the one we will be using for the robot. I was successfully able to install openCV on that, and was able to test the object detection. It is currently too slow with the current model. I also tested multiple motor drivers with the raspberry pi in an attempt to simulate communications between modules.
+March 1: I borrowed Ali's raspberry pi, which is the one we will be using for the robot. I was successfully able to install openCV on that, and was able to test the object detection. It is currently too slow with the current model. I also tested multiple motor drivers with the raspberry pi in an attempt to simulate communications between modules.
+
+March 8: Took 300 photos of the bucket we will be using so Ali can use it for the object detection model. Attempted to write arm and sensor firmware to the microcontrollers, but the wrong MCUs were soldered to the boards, will have to replace those before they can be tested.
+
+March 15:
+
+March 22: Attempted to test arm and sensor PCBs, but there was an error when they were designed. The pinout of the footprint of the mosfet was wrong in KiCad, so the circuit does not work. 
+
+March 29: Tested arm controller firmware with the mostly assembled arm. Was able to move the two motors for the arm, and figure out the ranges of motion for each.
+
+April 5: Inserted motor controllers in the robot base Cole was able to create to test the motor controllers. Had an issue where Once motors were started, the RPi lost communication with the microcontollers. Tested arm firmware with mostly assembled arm, as able to move the arm from a retracted to extended state, but it moves too fast, will need to update firmware to move the arm more slowly.
+
+April 12: Updated arm firmware to move the arm more slowly. Now the arm can move smoothly from one state to another. Also tested the gripper to find the final values for the servo motor. The gripper is able to grab and release the ping pong ball. Still waiting for new or fixed PCB for arm to finalize integration. Attempted further testing with the motor controllers. I replaced the wiring for the UART communiation. Two controllers are able to spin the motors, but two are not. They are still able to communicate and change states, but are not moving the motors.

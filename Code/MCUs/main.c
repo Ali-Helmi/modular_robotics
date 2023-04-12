@@ -26,7 +26,7 @@
 
 // CONFIG4
 #pragma config BBSIZE = BB512   // Boot Block Size Selection bits (512 words boot block size)
-#pragma config BBEN = OFF       // Boot Block Enable bit (Boot Block is disabled)
+#pragma config BBEN = OFF       // Boot Block Enable bit (Boot Block is disabled
 #pragma config SAFEN = OFF      // SAF Enable bit (SAF is disabled)
 #pragma config WRTAPP = OFF     // Application Block Write Protection bit (Application Block is not write-protected)
 #pragma config WRTB = OFF       // Boot Block Write Protection bit (Boot Block is not write-protected)
@@ -51,7 +51,8 @@
 #include "pwm_funcs.h"
 #include "motor_control.h"
 #include "uart.h"
-//#include "sensor.h"
+#include "sensor.h"
+#include "arm_control.h"
 //#include "led_test.h"
 
 #define _XTAL_FREQ 32000000
@@ -62,8 +63,8 @@
 #define TEST 10
 
 // Set module type and MCU address
-uint8_t module_type = MOTOR;
-#define MCU_ADDRESS 4
+uint8_t module_type = ARM;
+#define MCU_ADDRESS 5
 
 int main(int argc, char** argv) {
     // Interrupt setup
@@ -89,12 +90,13 @@ int main(int argc, char** argv) {
     }
     else if (module_type == SENSOR)
     {
-        //sensor_setup();
+        sensor_setup();
     }
-    else if (module_type == ARM)
+    else if (module_type == ARM_MAIN)
     {
-        motor_setup();
-        motor_forward(10);
+        //motor_setup();
+        //motor_forward(10);
+        arm_setup();
     }
     else if (module_type == TEST)
     {
@@ -110,16 +112,8 @@ int main(int argc, char** argv) {
     
     while(1)
     {
-        //RC0 = 1;
-        //motor_forward(65);
 
-        //uart_send(0x17);   // Transmit 0x135 as a test
-
-        __delay_ms(10);
-        
-        //RC0 = 0;
-        //motor_reverse(45);
-        //__delay_ms(1000);
+        __delay_ms(25);
 
         if (module_type == MOTOR)
         {
@@ -131,27 +125,42 @@ int main(int argc, char** argv) {
         }
         else if (module_type == ARM)
         {
-            if (arm_pwm > 800)
+            // Check if new PWM values have been requested
+            // If so, change them.
+            if (arm1_desired_value != arm1_current_value)
             {
-                up = 0;
-            }
-            else if (arm_pwm < 20)
-            {
-                up = 1;
+                //arm1_current_value = arm1_desired_value;
+                //set_pwm_duty_cycle(1, arm1_current_value);
+                
+                if (arm1_current_value < arm1_desired_value)
+                {
+                    set_pwm_duty_cycle(1, ++arm1_current_value);
+                }
+                else
+                {
+                    set_pwm_duty_cycle(1, --arm1_current_value);
+                }
+                
             }
 
-            if (up == 1)
+            if (arm2_desired_value != arm2_current_value)
             {
-                arm_pwm += 2;
-            }
-            else
-            {
-                arm_pwm -= 2;
+                //arm2_current_value = arm2_desired_value;
+                //set_pwm_duty_cycle(2, arm2_current_value);
+                
+                if (arm2_desired_value < arm2_current_value)
+                {
+                    set_pwm_duty_cycle(2, --arm2_current_value);
+                }
+                else
+                {
+                    set_pwm_duty_cycle(2, ++arm2_current_value);
+                }
+                
             }
 
-            //PWM3DC = arm_pwm << 6;
-            set_pwm_raw_duty_cycle(1, arm_pwm);
-            __delay_ms(30);
+
+
         }
         //CLRWDT();
         
@@ -170,24 +179,38 @@ void __interrupt() uart_int(void)
     {
         // Data is available in RC1REG
         // Read RC1REG to clear the flag
-        if (module_type == MOTOR)
+
+        // use generic uart receive frame
+        if (uart_receive_frame() == 1)
         {
-            motor_receive_uart();       // Receive the frame
+            // EOF received, call the function for this module type
+            if (module_type == MOTOR)
+            {
+                motor_receive_uart_frame(); // change this to receive frame
+            }
+            else if (module_type == SENSOR)
+            {
+                sensor_receive_uart();
+            }
+            else if (module_type == ARM)
+            {
+                arm_receive_uart_frame();
+            }
         }
-        else if (module_type == SENSOR)
+        else
         {
-            sensor_receive_uart();
+            // if 0, no need to look into it
+            // Other values might be errors
+            
         }
-        else if (module_type == TEST)
-        {
-            //led_receive_uart();
-        }
-        
     }
     else if (IOCCF1 == 1)     // External interrupt pin
     {
         IOCCF1 = 0; // Reset C2 interrupt
-        sensor_read();
+        if (module_type == SENSOR)
+        {
+            sensor_read();
+        }
     }
     else
     {

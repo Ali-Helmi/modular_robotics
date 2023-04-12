@@ -26,12 +26,23 @@ class robot_comms:
         
         self.previous_data = []
         #frame types
-        self.MOTOR_FRAME = 5
+        self.MOTOR_FRAME = 4
+        self.SENSOR_FRAME = 3
+        self.ARM_FRAME = 4
         
         #error types
         self.TIMEOUT = -1
         self.NOT_ENOUGH_BYTES = -2
         self.BAD_FRAME = -3
+        
+        # MCU UART ERRORS
+        self.GENERAL_ERROR = 234
+        self.MISSING_EOF = 235
+        self.BAD_DATA = 236
+        self.MISSING_DATA = 237
+        self.COMM_ERROR = 238
+        
+        self.error_list = [self.GENERAL_ERROR, self.MISSING_EOF, self.BAD_DATA, self.MISSING_DATA, self.COMM_ERROR]
         
     def send_frame(self, address, data):
         # Takes data frame and address and input, constructs frame to send
@@ -51,6 +62,8 @@ class robot_comms:
             frame.append(item)
             
         frame.append(126)
+        
+        print(frame)
         
         # Create frame bytes and send
         frame_bytes = bytearray(frame)
@@ -74,6 +87,7 @@ class robot_comms:
             pass
         
         if len(self.previous_data) > 0:
+            # There is previous data from a previously malformed frame
             if self.previous_data[0] & 127 == self.address:
                 new_data = self.ser.read(size=frame_type-len(self.previous_data) + 1)
                 frame = self.previous_data[1:] + new_data
@@ -82,21 +96,25 @@ class robot_comms:
             new_byte = int.from_bytes(self.ser.read(), 'big')
             if (new_byte >> 7) == 1:
                 if (new_byte & 127) == self.address:
-                    frame = list(self.ser.read(size=frame_type))
+                    frame = list(self.ser.read(size=frame_type + 1))
             else:
                 #this is not an address byte, dump until an EOF is found
                 new_byte = 0
                 eof_start = time.time_ns()
                 while new_byte != 126:
                     new_byte = int.from_bytes(self.ser.read(), 'big')
-                    if (time.time_ns() - start_time) > timeout:
+                    if (time.time_ns() - eof_start) > timeout:
+                        
                         # Not finding an EOF, just give up
                         break    
         
         if len(frame) < frame_type:
             # Not enough bytes received
+            print('Bad Size, Frame: ', frame)
+            if frame[1] in self.error_list:
+                print(self.check_uart_error(frame[1]))
             return [self.NOT_ENOUGH_BYTES]
-        elif frame[frame_type-1] == 126:
+        elif frame[frame_type] == 126:
             # Last byte is the EOF, this is a whole frame
             return frame[:-1]
         else:
@@ -105,12 +123,37 @@ class robot_comms:
             for i in range(frame_type):
                 if frame[i] > 127:
                     # this is an address byte
+                    print('ummmm')
                     self.previous_data = frame[i:]
                     break
-            
-            return [self.BAD_FRAME]
+            print("No EOF, Frame: ", frame)
+            return frame
         
 
     def flush_input(self):
         self.ser.reset_input_buffer()
         self.previous_data = []
+        
+    
+    def check_comm_error(self, error_num):
+        if error_num == self.TIMEOUT:
+            return 'Timeout'
+        if error_num == self.NOT_ENOUGH_BYTES:
+            return 'Not enough bytes'
+        if error_num == self.BAD_FRAME:
+            return 'Bad Frame'
+        
+        
+    def check_uart_error(self, error_num):
+        if error_num == self.GENERAL_ERROR:
+            return 'General Error'
+        elif error_num == self.MISSING_EOF:
+            return 'Missing EOF'
+        elif error_num == self.BAD_DATA:
+            return 'Bad data'
+        elif error_num == self.MISSING_DATA:
+            return 'Missing data'
+        elif error_num == self.COMM_ERROR:
+            return 'Communications error'
+        else:
+            'Error type unknown'

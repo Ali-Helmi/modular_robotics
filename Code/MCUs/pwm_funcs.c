@@ -118,10 +118,10 @@ void pwm_off(uint8_t channel)
 {
     if (channel == 1)
     {
-        RC2 = 0;            // Set output high
+        RC2 = 0;            // Set output low
         RC2PPS = 0x00;      // Set C2 to be digital ouput
     } else if (channel == 2) {
-        RC1 = 0;            // Set output high
+        RC1 = 0;            // Set output low
         RC1PPS = 0x00;      // Set C4 to be digital output
         
     }

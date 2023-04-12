@@ -9,37 +9,48 @@
 #define	ARM_CONTROL_H
 
 // Types
-#define ARM     1
-#define GRIPPER 2
 
 // States
-#define RETRACTED 1
-#define EXTENDED 2
+#define ARM_RETRACTED 1
+#define ARM_EXTENDED 2
+#define ARM_STATUS 3
 
 // PWM values for arms
-#define ARM1_EXTENDED 10
+#define ARM1_EXTENDED 50
 #define ARM1_RETRACTED 0
-#define ARM2_EXTENDED 10
+#define ARM2_EXTENDED 50
 #define ARM2_RETRACTED 0
-#define GRIPPER_EXTENDED 10
+#define GRIPPER_EXTENDED 50
 #define GRIPPER_RETRACTED 0
 
+#define ARM_STEPS 5
+#define GRIPPER_STEPS 5
 
-uint8_t arm_state, gripper_state,
-        arm_angle1, arm_angle2, gripper_angle,
+// UART States
+#define IDLE_STATE            1
+#define RECEIVE_DATA_STATE    2
+#define EOF_STATE             3
+
+
+uint8_t arm_state, new_arm_state,
+        arm1_current_value, arm2_current_value,
+        arm1_desired_value, arm2_desired_value,
         check;
 
+uint8_t arm_comm_state, new_state, arm_type, arm_error;
 
-void arm_setup(uint8_t type);
+void arm_setup(void);
 void arm_extend(void);
 void arm_retract(void);
 void gripper_open(void);
 void gripper_close(void);
 
-void send_error(uint8_t error_no);
-void send_status(void);
-void reset_status(void);
+void arm_send_error(uint8_t error_no);
+void arm_send_status(void);
+void arm_reset_status(void);
 void arm_receive_uart(void);
+
+void arm_receive_uart_frame(void);
 
 
 

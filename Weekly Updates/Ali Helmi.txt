@@ -47,4 +47,4 @@ Apr 12th, 2023:
 
 Apr 19th, 2023:
 	- The object detection program is going through optimizations and tweaks to get faster processed recognition frame rates out of the program.
-	- The arm had the extesion cords attached and wired through its body down through its base and still waiting to be attached to the fully assembled robot.
+	- The arm had the extesion cords attached and wired through its body down through its base and still waiting to be attached to the fully assembled robot..

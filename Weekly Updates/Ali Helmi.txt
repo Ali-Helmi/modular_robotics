@@ -44,3 +44,7 @@ Apr 12th, 2023:
 	- Tested and validated the last model which I trained using 100 epochs, and I also managed to finalize my program to output everything needed by the robot controller program. 
 	- The entire arm was completely assembled by this time and tested with the gripper included. 
 	- As it stands now both the gripper arm and the object detection program were validated successfully, passed all tests, and ready for final demonstration once the entire robot is built and assembled successfully.
+
+Apr 19th, 2023:
+	- The object detection program is going through optimizations and tweaks to get faster processed recognition frame rates out of the program.
+	- The arm had the extesion cords attached and wired through its body down through its base and still waiting to be attached to the fully assembled robot.

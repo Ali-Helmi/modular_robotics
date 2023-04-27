@@ -1,0 +1,15 @@
+"Qty";"Value";"Device";"Package";"Parts";"Description";"";
+"1";"100nF";"CAP_CERAMIC_0603";"_0603";"C2";"Ceramic Capacitors";"";
+"3";"10k";"RESISTOR_0603";"_0603";"R2, R4, R5";"Resistors";"";
+"1";"10nF";"CAP_CERAMIC_0603";"_0603";"C1";"Ceramic Capacitors";"";
+"2";"1k";"RESISTOR_0603";"_0603";"R1, R3";"Resistors";"";
+"1";"220R";"RESISTOR_0603";"_0603";"R6";"Resistors";"";
+"1";"691210910002";"691210910002";"691210910002";"MOTOR";"Wurth Elektronik, 2109 2.54mm Pitch, 2 Way PCB Terminal Block";"";
+"1";"691210910003";"691210910003";"691210910003";"J1";"WR-TBL Serie 2109 - 2.54 mm Horiz. Entry";"";
+"2";"IRF530NSTRLPBF";"IRF530NSTRLPBF";"IRF2804STRLPBF";"Q1, Q4";"IRF530NSTRLPBF N-Channel MOSFET, 17 A, 100 V HEXFET, 3-Pin D2PAK Infineon";"";
+"2";"IRF9530NSPBF";"IRF9530NSPBF";"IDB30E60";"Q2, Q5";"IRF9530NSPBF P-Channel MOSFET, 14 A, 100 V HEXFET, 3-Pin D2PAK Infineon";"";
+"1";"JUMPER-SMT_2_NC_PASTE_SILK";"JUMPER-SMT_2_NC_PASTE_SILK";"SMT-JUMPER_2_NC_PASTE_SILK";"JP2";"Normally closed solder jumper";"";
+"1";"M20-9990546";"HEADER-1X5ROUND";"1X05_ROUND";"JP3";"PIN HEADER";"";
+"2";"MMBT2222A_R1_00001";"TRANSISTOR_NPN";"SOT23-R";"Q3, Q6";"NPN Transistor";"";
+"1";"PIC16F15224-E_ST";"PIC16F15224-E_ST";"SOP65P640X120-14N";"IC1";"8-bit Microcontrollers - MCU 7KB Flash, 512B RAM, 10b ADC, 2x PWM, 2x CCP, HLT, WDT, PPS, EUSART, SPI/I2C, XLP SLEEP Mode";"";
+"1";"PPTC021LGBN-RC";"PINHD-1X2/90";"1X02/90";"JP4";"PIN HEADER";"";

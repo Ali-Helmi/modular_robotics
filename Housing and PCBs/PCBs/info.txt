@@ -1,0 +1,4 @@
+final_PCBs_404 is the location for the final designs for the arm, sensor, and connector PCBs
+used for the robot in ECEN 404
+
+The others are the old designs

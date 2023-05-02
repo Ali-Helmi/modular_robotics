@@ -1,0 +1,54 @@
+Arm Module: x1
+- x1 arm_camera_base
+- x1 arm_camera_bottom
+- x2 arm_camera_connecting_wall
+- x1 arm_standoffs
+
+Camera Module: x1
+- x1 arm_camera_base
+- x1 arm_camera_bottom
+- x1 arm_camera_connecting_wall
+- x1 camera_wall_15deg
+- x1 flat_top
+
+Connector (Buck Converter) Module: x1
+- x1 connector_base
+- x1 connecting_wall
+- x3 connecting_wall_power
+- x1 connecting_top
+
+Connector (Buck Converter) Module: x1
+- x1 connector_base
+- x3 connecting_wall
+- x1 connecting_wall_power
+- x1 connecting_top
+
+Controller Module: x1
+- x1 controller_base
+- x4 connecting_wall
+- x1 connecting_top
+
+Motor Module: x2
+- x1 motor_base
+- x1 motor_fastener
+- x3 connecting_wall
+- x1 flat_top
+
+Motor Module: x2
+- x1 motor_base
+- x1 motor_fastener
+- x2 connecting_wall
+- x2 connecting_wall_power
+- x1 flat_top
+
+Power Module: x2
+- x1 PD_base
+- x1 motor_fastener
+- x2 connecting_wall_power
+- x2 connecting_wall
+- x1 connecting_top
+
+Sensor Module: x1
+- x1 sensor_base
+- x1 sensor_top
+- x1 connecting_wall

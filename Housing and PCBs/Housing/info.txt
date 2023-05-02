@@ -1,0 +1,5 @@
+"final_housing_design_404" has the final designs of all housings for the project that are optimized for FDM 3d printing
+
+"Housing_before_FDM_optimization_404" has the housing designs prior to FDM printing optimization
+
+Other directories under "Housing" contain the original conceptual housing designs from ECEN 403
